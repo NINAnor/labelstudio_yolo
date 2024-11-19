@@ -5,7 +5,7 @@ import yaml
 from ultralytics import YOLO
 
 # Configuration
-EXPORT_PATH = "exported_data/yolo"  # Directory where the YOLO data is saved
+EXPORT_PATH = "/home/sindre.molvarsmyr/GitHub/exported_data/yolo"  # Directory where the YOLO data is saved, have to be full path
 labelimgfolder = EXPORT_PATH
 config_path = os.path.join(labelimgfolder, 'config.yaml') # Path to save the configuration file
 with open(os.path.join(labelimgfolder, 'classes.txt'), 'r') as f:
