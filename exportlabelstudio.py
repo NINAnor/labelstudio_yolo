@@ -70,5 +70,5 @@ for file in files:
         print(f"Failed to download file. Status code: {response.status_code}")
     
     # to avoid breaking the server we have to wait a bit between the requests
-    # without this the server will go down
-    time.sleep(2)
+    # without this the server will go down until it restarts
+    time.sleep(2) # 2 seconds delay between requests is probably overkill, but better safe than sorry
