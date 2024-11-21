@@ -71,4 +71,4 @@ for file in files:
     
     # to avoid breaking the server we have to wait a bit between the requests
     # without this the server will go down until it restarts
-    time.sleep(2) # 2 seconds delay between requests is probably overkill, but better safe than sorry
+    time.sleep(1) # 1 seconds delay between requests is probably overkill, but better safe than sorry
