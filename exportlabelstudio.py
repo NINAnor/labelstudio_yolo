@@ -55,6 +55,7 @@ headers = {
 
 files = os.listdir(os.path.join(EXPORT_PATH, 'labels'))
 files = [file.replace('.txt', '.jpg') for file in files]
+#files = [file.replace('.txt', '.mp4') for file in files]
 
 for file in files:
     # Sending a GET request to download the file

@@ -8,6 +8,7 @@ This repository contains two Python scripts for managing the export and training
 1. `exportlabelstudio.py`: Automates the export of labeled data from LabelStudio, downloads associated images, and extracts YOLO-formatted data for use in training.
 2. `trainlabelstudio.py`: Prepares the YOLO dataset for training by splitting it into training and validation sets, creating a configuration file, and initiating training using the YOLOv8 framework.
 
+The files are made for projects containing images and bounding boxes, but can also be used to export video files by replacing `.jpg` with `.mp4` in the `exportlabelstudio.py`. Bounding boxes from videos are not included in the YOLO download, but one can export `.json` manually from the website.
 ---
 
 ## Prerequisites
@@ -26,8 +27,8 @@ pip install requests scikit-learn pyyaml ultralytics
 ```
 
 ### Configuration
-Both scripts use an API token for LabelStudio authentication. Ensure you have the following:
-- **LabelStudio API Token**: Replace the placeholder `API_TOKEN` in the `authenticate.py` file with your actual token.
+Both scripts use an API token for LabelStudio authentication. Ensure you have done the following:
+- **LabelStudio Authentication**: Create a file `authenticate.py` in the root of this repo. The content of the file should be `API_TOKEN = "[your-api-key]"`.
 - **Project ID**: Replace the `PROJECT_ID` placeholder with your LabelStudio project ID.
 
 Create a directory structure for storing the exported and processed data:

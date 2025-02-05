@@ -13,11 +13,20 @@
 import os
 import cv2
 import time
+import csv
 
 # Paths
 base_folder = "/data/P-Prosjekter2/22660210_droner_sjofugl/yolo/ringreading2024/tobepublished/datasets/rf/"
+#base_folder = "exported_data/yolo/"
 images_folder = os.path.join(base_folder, "images")
 labels_folder = os.path.join(base_folder, "labels")
+csv_file = os.path.join(base_folder, "ringcodes.csv")
+csv_data = {}
+# Read CSV file
+with open(csv_file, mode='r') as file:
+    csv_reader = csv.DictReader(file, delimiter='|')
+    for row in csv_reader:
+        csv_data[row['filename']] = row
 
 # Function to draw red boxes on an image based on YOLO format annotations
 def draw_boxes(image_path, label_path, target_width=1200):
@@ -42,11 +51,13 @@ def draw_boxes(image_path, label_path, target_width=1200):
         # Parse each line in YOLO format: <class_id> <x_center> <y_center> <width> <height> <precision>
         for line in lines:
             parts = line.strip().split()
-            if len(parts) != 6:
+            if len(parts) != 5 and len(parts) != 6:
                 print(f"Invalid line: {line}")
                 continue
-
-            _, x_center, y_center, box_width, box_height, precision = map(float, parts)
+            elif len(parts) == 5:
+                _, x_center, y_center, box_width, box_height = map(float, parts)
+            elif len(parts) == 6:
+                _, x_center, y_center, box_width, box_height, precission = map(float, parts)
 
             # Convert YOLO relative coordinates to pixel coordinates in the resized image
             x1 = int((x_center - box_width / 2) * new_width)
@@ -56,7 +67,17 @@ def draw_boxes(image_path, label_path, target_width=1200):
 
             # Draw red rectangle on the image
             cv2.rectangle(image, (x1, y1), (x2, y2), (0, 0, 255), 2)  # Red box
-            print(f"Detected object at ({x1}, {y1}) to ({x2}, {y2})")
+
+            # Draw label text on the image
+            label = csv_data.get(os.path.basename(image_path), {}).get('code', 'Unknown')
+            (text_width, text_height), baseline = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 0.5, 2)
+            cv2.rectangle(image, (x1 - 2, y1 - text_height - 12), (x1 + text_width, y1), (255, 255, 255), cv2.FILLED)
+            cv2.putText(image, label, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
+
+            # Draw filename on the image
+            (filename_width, filename_height), filename_baseline = cv2.getTextSize(os.path.basename(image_path), cv2.FONT_HERSHEY_SIMPLEX, 0.5, 2)
+            cv2.rectangle(image, (10, 20 - filename_height - 10), (10 + filename_width, 20), (255, 255, 255), cv2.FILLED)
+            cv2.putText(image, os.path.basename(image_path), (10, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
 
     return image
 
@@ -87,11 +108,11 @@ def process_images():
             # Display the image
             lastidx = idx
             cv2.imshow("YOLO Detections", annotated_image)
-            idx = (idx + 1) % len(image_files)
+            if not paused:
+                idx = (idx + 1) % len(image_files)
 
         # Wait for 100 ms or a key press
         key = cv2.waitKey(100 if not paused else 0)
-
         if key == 27:  # ESC key to exit
             print("Exiting...")
             break
@@ -100,11 +121,19 @@ def process_images():
         elif key == 81:  # Left arrow key
             if paused:
                 idx = (idx - 1)
-                print(idx)
         elif key == 83:  # Right arrow key
             if paused:
                 idx = (idx + 1)
-                print(idx)
+        elif key == 82:  # Up arrow key
+            # jump 1000 images back
+            if paused:
+                idx = (idx - 1000)
+        elif key == 84:  # Down arrow key
+            # jump 1000 images forward
+            if paused:
+                idx = (idx + 1000)
+        elif key != -1:
+            print(f"Key pressed: {key}")
 
 # Run the script
 process_images()
